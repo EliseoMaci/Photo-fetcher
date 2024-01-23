@@ -2,29 +2,31 @@ const photoContainer = document.getElementById("photoContainer");
 const toggleSwitch = document.getElementById("toggleSwitch");
 const loadMoreBtn = document.getElementById("loadMoreBtn");
 
-function fetchPhotos() {
+async function fetchPhotos() {
+    console.log("Fetching photos...");
     photoContainer.innerHTML = "";
-    for (let i = 0; i < 4; i++) {
-        fetch("https://picsum.photos/375/375")
-            .then((response) => {
-                if (response.ok) {
-                    return response.url;
-                } else {
-                    throw new Error("Failed to fetch photo");
-                }
-            })
-            .then((photoUrl) => {
-                const img = document.createElement("img");
-                img.src = photoUrl;
-                img.alt = "Random Photo";
+    try {
+        for (let i = 0; i < 4; i++) {
+            const response = await fetch("https://picsum.photos/375/375");
+            if (!response.ok) {
+                throw new Error("Failed to fetch photo");
+            }
 
-                photoContainer.appendChild(img);
-            })
-            .catch((error) => console.error(error));
+            const photoUrl = response.url;
+            const img = document.createElement("img");
+            img.src = photoUrl;
+            img.alt = "Random Photo";
+
+            photoContainer.appendChild(img);
+        }
+        console.log("Photos fetched.");
+    } catch (error) {
+        console.error(error);
     }
 }
 
 function applyGreyscale() {
+    console.log("Applying greyscale...");
     const images = photoContainer.querySelectorAll("img");
     images.forEach((img) => {
         if (toggleSwitch.checked) {
@@ -33,10 +35,17 @@ function applyGreyscale() {
             img.classList.remove("greyscale");
         }
     });
+    console.log("Greyscale applied.");
 }
 
 fetchPhotos();
 toggleSwitch.addEventListener("change", function () {
+    console.log("Toggle switch changed.");
     applyGreyscale();
 });
-loadMoreBtn.addEventListener("click", fetchPhotos);
+
+loadMoreBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+    console.log("Load more button clicked.");
+    fetchPhotos();
+});
